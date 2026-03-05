@@ -36,9 +36,11 @@ case "$cmd" in
       elif [[ $untracked_count -eq 1 && $modified_count -eq 0 ]]; then
         message="Created $untracked"
       else
-        echo "Please provide a commit message. Here are the changed files."
-        echo "  Usage: g c <commit-message>\n"
-        git status
+        echo "Please provide a commit message. Here are the changed files:"
+        echo ""
+        git diff --name-status
+        echo ""
+        echo "Usage: g c \"commit-message\""
         exit 1
       fi
     else
