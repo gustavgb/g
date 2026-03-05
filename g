@@ -33,6 +33,8 @@ case "$cmd" in
 
       if [[ $modified_count -eq 1 && $untracked_count -eq 0 ]]; then
         message="Update $modified"
+      elif [[ $untracked_count -eq 1 && $modified_count -eq 0 ]]; then
+        message="Created $untracked"
       else
         echo "Usage: g c <commit-message>"
         exit 1
