@@ -31,7 +31,10 @@ case "$cmd" in
       modified_count=$(echo "$modified" | grep -c .)
       untracked_count=$(echo "$untracked" | grep -c .)
 
-      if [[ $modified_count -eq 1 && $untracked_count -eq 0 ]]; then
+      if [[ $modified_count -eq 0 && $untracked_count -eq 0 ]]; then
+        echo "nothing to commit, working tree clean"
+        exit 1
+      elif [[ $modified_count -eq 1 && $untracked_count -eq 0 ]]; then
         message="Update $modified"
       elif [[ $untracked_count -eq 1 && $modified_count -eq 0 ]]; then
         message="Created $untracked"
