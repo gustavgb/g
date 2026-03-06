@@ -60,11 +60,16 @@ case "$cmd" in
     git status
     ;;
 
+  p)
+    git pull --ff
+    ;;
+
   *)
     echo "Usage:"
     echo "  g i <remote-url> [commit-message]   Init repo, commit all, and push"
     echo "  g c <commit-message>                Add all, commit, and push"
     echo "  g s                                 Check status"
+    echo "  g p                                 Pull"
     exit 1
     ;;
 esac
