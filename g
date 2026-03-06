@@ -64,12 +64,36 @@ case "$cmd" in
     git pull --ff
     ;;
 
+  b)
+    git branch -a
+    ;;
+
+  prune)
+    git fetch --prune
+    gone=$(git branch -vv | grep ': gone]' | awk '{print $1}')
+    if [[ -z "$gone" ]]; then
+      echo "No local branches to delete."
+    else
+      echo "The following local branches will be deleted:"
+      echo "$gone"
+      echo ""
+      read -r -p "Proceed? [y/N] " confirm
+      if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo "$gone" | xargs git branch -d
+      else
+        echo "Aborted."
+      fi
+    fi
+    ;;
+
   *)
     echo "Usage:"
     echo "  g i <remote-url> [commit-message]   Init repo, commit all, and push"
     echo "  g c <commit-message>                Add all, commit, and push"
     echo "  g s                                 Check status"
     echo "  g p                                 Pull"
+    echo "  g b                                 List all local and remote branches"
+    echo "  g prune                             Prune remote tracking refs and delete local branches whose remote is gone"
     exit 1
     ;;
 esac
