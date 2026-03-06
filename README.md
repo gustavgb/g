@@ -10,4 +10,6 @@ Usage:
 
 If only one file was changed, you can omit the commit message from `g c`.
 
+To make git respect special characters in the status and automatic commit messages, run `git config --global core.quotepath false`.
+
 Use at your own risk.
