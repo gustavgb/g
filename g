@@ -64,6 +64,11 @@ case "$cmd" in
     git pull --ff
     ;;
 
+  push)
+    git push
+    git push --tags
+    ;;
+
   b)
     git branch -a
     ;;
