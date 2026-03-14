@@ -62,9 +62,6 @@ case "$cmd" in
 
   p)
     git pull --ff
-    ;;
-
-  push)
     git push
     git push --tags
     ;;
@@ -72,6 +69,41 @@ case "$cmd" in
   b)
     git branch -a
     ;;
+
+  dirty)
+    find . -type d -name .git | while read repo; do
+        dir=$(dirname "$repo")
+        cd "$dir"
+
+        has_changes=false
+        has_unpushed=false
+
+        # Local changes (staged/unstaged/untracked)
+        if [[ -n "$(git status --porcelain)" ]]; then
+            has_changes=true
+        fi
+
+        # Unpushed commits
+        if git log --branches --not --remotes | grep -q '^commit'; then
+            has_unpushed=true
+        fi
+
+        if [[ "$has_changes" == true || "$has_unpushed" == true ]]; then
+            echo "Repo: $dir"
+            if [[ "$has_changes" == true ]]; then
+                echo "  - Working tree is DIRTY"
+                git status -sb
+            fi
+            if [[ "$has_unpushed" == true ]]; then
+                echo "  - There are UNPUSHED COMMITS"
+            fi
+            echo ""
+        fi
+
+        cd - > /dev/null
+    done
+    ;;
+
 
   prune)
     git fetch --prune
