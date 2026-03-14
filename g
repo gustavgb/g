@@ -56,10 +56,6 @@ case "$cmd" in
     git push origin "$branch"
     ;;
 
-  s)
-    git status
-    ;;
-
   p)
     git pull --ff
     git push
@@ -70,40 +66,46 @@ case "$cmd" in
     git branch -a
     ;;
 
-  dirty)
-    find . -type d -name .git | while read repo; do
-        dir=$(dirname "$repo")
-        cd "$dir"
+  s)
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        git status
+    else
+        # Not a git repo: look for child repos in visible directories
+        echo "Searching for changes in subdirectories..."
 
-        has_changes=false
-        has_unpushed=false
+        find . -type d -name .git ! -path './.*' | while read repo; do
+            dir=$(dirname "$repo")
+            cd "$dir"
 
-        # Local changes (staged/unstaged/untracked)
-        if [[ -n "$(git status --porcelain)" ]]; then
-            has_changes=true
-        fi
+            has_changes=false
+            has_unpushed=false
 
-        # Unpushed commits
-        if git log --branches --not --remotes | grep -q '^commit'; then
-            has_unpushed=true
-        fi
-
-        if [[ "$has_changes" == true || "$has_unpushed" == true ]]; then
-            echo "Repo: $dir"
-            if [[ "$has_changes" == true ]]; then
-                echo "  - Working tree is DIRTY"
-                git status -sb
+            # Local changes (staged/unstaged/untracked)
+            if [[ -n "$(git status --porcelain)" ]]; then
+                has_changes=true
             fi
-            if [[ "$has_unpushed" == true ]]; then
-                echo "  - There are UNPUSHED COMMITS"
-            fi
-            echo ""
-        fi
 
-        cd - > /dev/null
-    done
+            # Unpushed commits
+            if git log --branches --not --remotes | grep -q '^commit'; then
+                has_unpushed=true
+            fi
+
+            if [[ "$has_changes" == true || "$has_unpushed" == true ]]; then
+                echo "Repo: $dir"
+                if [[ "$has_changes" == true ]]; then
+                    echo "  - Working tree is DIRTY"
+                    git status -sb
+                fi
+                if [[ "$has_unpushed" == true ]]; then
+                    echo "  - There are UNPUSHED COMMITS"
+                fi
+                echo ""
+            fi
+
+            cd - > /dev/null
+        done
+    fi
     ;;
-
 
   prune)
     git fetch --prune
